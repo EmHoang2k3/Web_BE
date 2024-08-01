@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductModel extends BaseModel{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,6 @@ public class ProductModel extends BaseModel{
     private String description;
 
     @ManyToOne
-    @Column(name = "category_id")
+    @JoinColumn(name = "category_id")
     private CategoryModel category;
 }

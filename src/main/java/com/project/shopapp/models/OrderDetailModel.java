@@ -9,6 +9,7 @@ import lombok.*;
 @Data
 @Setter
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 public class OrderDetailModel {
     @Id
@@ -16,11 +17,11 @@ public class OrderDetailModel {
     private Long id;
 
     @ManyToOne
-    @Column(name = "order_id")
+    @JoinColumn(name = "order_id")
     private OrderModel order;
 
     @ManyToOne
-    @Column(name = "product_id")
+    @JoinColumn(name = "product_id")
     private ProductModel product;
 
     @Column(name = "price",nullable = false)

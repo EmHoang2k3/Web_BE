@@ -11,6 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserModel extends BaseModel{
 
     @Id
@@ -41,6 +42,6 @@ public class UserModel extends BaseModel{
     private int googleAccountId;
 
     @ManyToOne
-    @Column(name = "role_id")
+    @JoinColumn(name = "role_id")
     private RoleModel role;
 }

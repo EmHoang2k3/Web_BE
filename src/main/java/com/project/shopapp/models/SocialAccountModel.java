@@ -10,6 +10,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SocialAccountModel {
 
     @Id
@@ -29,7 +30,7 @@ public class SocialAccountModel {
     private String name;
 
     @ManyToOne
-    @Column(name = "user_id")
+    @JoinColumn(name = "user_id")
     private UserModel user;
 
 }
