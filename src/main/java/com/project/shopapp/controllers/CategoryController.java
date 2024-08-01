@@ -2,6 +2,7 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.CategoryDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -36,5 +37,15 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(errorMessage);
         }
         return ResponseEntity.ok("thành công");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateCategory(@PathVariable Long id){
+        return ResponseEntity.ok("Update success");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body("Delete category successfully");
     }
 }
