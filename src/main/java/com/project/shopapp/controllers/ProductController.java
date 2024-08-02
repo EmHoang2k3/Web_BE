@@ -1,12 +1,19 @@
 package com.project.shopapp.controllers;
 
+import com.github.javafaker.Faker;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
+import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.ProductImageModel;
 import com.project.shopapp.models.ProductModel;
+import com.project.shopapp.responses.ProductListResponse;
+import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +41,22 @@ public class ProductController {
 
     @GetMapping("")
     //http://localhost:8088/api/v1/products?page=1&limit=10
-    public ResponseEntity<String> GetProducts(
+    public ResponseEntity<ProductListResponse> GetProducts(
             @RequestParam("page")    int page,
             @RequestParam("limit")   int limit
     ){
-        return ResponseEntity.ok("get list product thành công");
+        //Tạo page từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+                page,limit,
+                Sort.by("CreatedAt").descending());
+        Page<ProductResponse> productPage = productService.getAllProduct(pageRequest);
+        //Lấy tổng số trang
+        int totalPages = productPage.getTotalPages();
+        List<ProductResponse> products =  productPage.getContent();
+        return ResponseEntity.ok(ProductListResponse.builder()
+                        .product(products)
+                        .totalPages(totalPages)
+                .build());
     }
 
     @PostMapping( "")
@@ -142,4 +160,30 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body("Delete Product successfully");
     }
+
+    //@PostMapping("/generateFakeProducts")
+    private ResponseEntity<String>  generateFakeProducts(){
+        Faker faker = new Faker();
+        for(int i = 0;i < 100_000;i++){
+            String productName = faker.commerce().productName();
+            if(productService.existsByName(productName)){
+                continue;
+            }
+            ProductDTO productDTO = ProductDTO.builder()
+                    .name(productName)
+                    .price((float)faker.number().numberBetween(10,90_000_000))
+                    .description(faker.lorem().sentence())
+                    .thumbnail("")
+                    .categoryId((long)faker.number().numberBetween(2,5))
+                    .build();
+            try {
+                productService.createProduct(productDTO);
+            } catch (DataNotFoundException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        }
+        return ResponseEntity.ok("Fake products create successfully");
+    }
+
+
 }
