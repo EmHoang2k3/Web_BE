@@ -23,7 +23,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -152,13 +151,39 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getProductById(@PathVariable("id") String productId){
-        return ResponseEntity.ok("Product with ID:" + productId);
+    public ResponseEntity<?> getProductById(
+            @PathVariable("id") Long productId){
+    try {
+        ProductModel existingProduct = productService.getProductById(productId);
+        return ResponseEntity.ok(ProductResponse.formProduct(existingProduct));
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable long id,
+            @RequestBody ProductDTO productDTO
+    ){
+        try {
+            ProductModel productUpdate = productService.updateProduct(id,productDTO);
+            return ResponseEntity.ok(ProductResponse.formProduct(productUpdate));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body("Delete Product successfully");
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok(String.format("Product width id = %d delete successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     //@PostMapping("/generateFakeProducts")
