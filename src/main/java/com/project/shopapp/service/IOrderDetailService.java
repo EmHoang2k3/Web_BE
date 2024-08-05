@@ -13,7 +13,7 @@ public interface IOrderDetailService {
 
     OrderDetailModel getOrderDetail(Long id) throws DataNotFoundException;
 
-    OrderDetailModel updateOrderDetail(Long id, OrderDetailDTO newOrderDetail);
+    OrderDetailModel updateOrderDetail(Long id, OrderDetailDTO newOrderDetail) throws DataNotFoundException;
 
     void deleteOrderDetail(Long id);
 

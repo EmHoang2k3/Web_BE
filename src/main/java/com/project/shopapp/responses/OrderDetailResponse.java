@@ -1,10 +1,7 @@
 package com.project.shopapp.responses;
 
-import com.project.shopapp.models.OrderModel;
-import com.project.shopapp.models.ProductModel;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.shopapp.models.OrderDetailModel;
 import lombok.*;
 
 @Setter
@@ -16,24 +13,35 @@ public class OrderDetailResponse {
 
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    @JsonProperty("order_id")
     private Long order;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private ProductModel product;
+    @JsonProperty("product_id")
+    private Long product;
 
-    @Column(name = "price",nullable = false)
+    @JsonProperty("price")
     private Float price;
 
-    @Column(name = "number_of_product",nullable = false)
+    @JsonProperty("number_of_product")
     private int numberOfProduct;
 
-    @Column(name = "total_money",nullable = false)
+    @JsonProperty("total_money")
     private Float totalMoney;
 
-    @Column(name = "color")
+    @JsonProperty("color")
     private String color;
 
+
+    public static OrderDetailResponse formOrderDetail(OrderDetailModel orderDetail){
+
+        return OrderDetailResponse.builder()
+                .id(orderDetail.getId())
+                .order(orderDetail.getOrder().getId())
+                .product(orderDetail.getProduct().getId())
+                .price(orderDetail.getPrice())
+                .color(orderDetail.getColor())
+                .numberOfProduct(orderDetail.getNumberOfProduct())
+                .totalMoney(orderDetail.getTotalMoney())
+                .build();
+    }
 }

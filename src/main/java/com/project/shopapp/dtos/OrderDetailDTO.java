@@ -19,7 +19,7 @@ public class OrderDetailDTO {
     private Long productId;
 
     @Min(value = 1, message = "Price id must be > 0")
-    private Long price;
+    private Float price;
 
     @JsonProperty("number_of_product")
     @Min(value = 1, message = "number_of_product id must be >= 1")
