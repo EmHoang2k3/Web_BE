@@ -30,7 +30,7 @@ public class UserService implements IUserService{
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .dateOfBirth(userDTO.getDateOfBrith())
-                .facebookAcountId(userDTO.getFacebookAccountId())
+                .facebookAccountId(userDTO.getFacebookAccountId())
                 .googleAccountId(userDTO.getGoogleAccountId())
                 .build();
         RoleModel role = roleRepository.findById(userDTO.getRoleId())

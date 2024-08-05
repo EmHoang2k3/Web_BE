@@ -2,6 +2,7 @@ package com.project.shopapp.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.mapping.List;
 
 import java.util.Date;
 
@@ -30,13 +31,14 @@ public class UserModel extends BaseModel{
     @Column(name = "password",length = 200,nullable = false)
     private String password;
 
+    @Column(name = "is_active")
     private boolean active;
 
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @Column(name = "facebook_acount_id")
-    private int facebookAcountId;
+    @Column(name = "facebook_account_id")
+    private int facebookAccountId;
 
     @Column(name = "google_account_id")
     private int googleAccountId;

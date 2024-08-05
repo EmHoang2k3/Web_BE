@@ -3,19 +3,19 @@ package com.project.shopapp.service;
 
 
 import com.project.shopapp.dtos.OrderDTO;
-import com.project.shopapp.repositories.OrderRepository;
-import com.project.shopapp.responses.OrderResponse;
+import com.project.shopapp.exceptions.DataNotFoundException;
+import com.project.shopapp.models.OrderModel;
 
 import java.util.List;
 
 public interface IOrderService {
-    OrderResponse createOrder (OrderDTO orderDTO);
+    OrderModel createOrder (OrderDTO orderDTO) throws Exception;
 
-    OrderResponse getOrder (long id);
+    OrderModel getOrder (long id);
 
-    List<OrderResponse> getAllOrder(Long userId);
+    List<OrderModel> findByUserId(Long userId);
 
-    OrderResponse updateOrder(long id, OrderDTO orderDTO);
+    OrderModel updateOrder(long id, OrderDTO orderDTO) throws DataNotFoundException;
 
-    void remoteCategory(long id);
+    void remoteOrder(long id);
 }
