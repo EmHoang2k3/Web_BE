@@ -180,7 +180,7 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id){
         try {
             productService.deleteProduct(id);
-            return ResponseEntity.ok(String.format("Product width id = %d delete successfully"));
+            return ResponseEntity.ok(String.format("Product width delete successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

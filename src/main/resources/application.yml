@@ -22,5 +22,9 @@ server:
   port: 8088
 api:
   prefix: /api/v1
+jwt:
+  expiration : 2592000
+  secretKey : v6sr0P/7Ux1oEUNcEkD2MAJvF166duvoxmIqRTV3Hi4=
+
 
 
