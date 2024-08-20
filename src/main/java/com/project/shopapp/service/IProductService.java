@@ -8,14 +8,16 @@ import com.project.shopapp.models.ProductModel;
 import com.project.shopapp.responses.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
 public interface IProductService {
     public ProductModel createProduct(ProductDTO productDTO) throws DataNotFoundException;
 
     ProductModel getProductById(long id) throws Exception;
 
-    Page<ProductResponse> getAllProduct(PageRequest pageRequest);
+
+    ProductModel getProductById(Long id) throws DataNotFoundException;
+
+    Page<ProductResponse> getAllProduct(String keyword, Long categoryId, PageRequest pageRequest);
 
     ProductModel updateProduct(long id,ProductDTO productDTO) throws Exception;
 

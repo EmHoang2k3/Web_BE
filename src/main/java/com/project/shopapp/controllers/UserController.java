@@ -3,7 +3,11 @@ package com.project.shopapp.controllers;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.dtos.UserLoginDTO;
 import com.project.shopapp.models.UserModel;
+import com.project.shopapp.responses.LoginResponse;
+import com.project.shopapp.responses.RegisterResponse;
 import com.project.shopapp.service.IUserService;
+import com.project.shopapp.components.LocalizationUtils;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,9 +27,9 @@ import java.util.List;
 public class UserController {
 
     private final IUserService iUserService;
-
+    private final LocalizationUtils localizationUtils;
     @PostMapping("/register")
-    public ResponseEntity<?> register (
+    public ResponseEntity<RegisterResponse> register (
             @Valid @RequestBody
             UserDTO userDTO,
             BindingResult result
@@ -36,37 +40,50 @@ public class UserController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorMessage);
+                return ResponseEntity.badRequest().body(
+                        RegisterResponse.builder()
+                                .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_FAILED))
+                                .build()
+                );
             }
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                return ResponseEntity.badRequest().body("Password dose not match");
+                return ResponseEntity.badRequest().body(RegisterResponse.builder()
+                                .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH))
+                                .build());
             }
              UserModel user = iUserService.createUser(userDTO);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(RegisterResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY))
+                            .user(user)
+                            .build());
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(RegisterResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_FAILED))
+                    .build());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login (
+    public ResponseEntity<LoginResponse> login (
             @Valid @RequestBody
-            UserLoginDTO userLoginDTO,
-            BindingResult result
+            UserLoginDTO userLoginDTO
+
     ){
-        if(result.hasErrors()) {
-            List<String> errorMessage = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
         //Kiem tra thong tin dang nhap va sinh toke
         try {
-          String token = iUserService.login(userLoginDTO.getPhoneNumber(),userLoginDTO.getPassword());
-            return ResponseEntity.ok(token);
+          String token = iUserService.login(
+                  userLoginDTO.getPhoneNumber(),
+                  userLoginDTO.getPassword());
+
+            return ResponseEntity.ok(LoginResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
+                            .token(token)
+                    .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    LoginResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED,e.getMessage()))
+                            .build());
         }
         //Tra ve token trong response
     }

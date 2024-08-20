@@ -4,6 +4,7 @@ import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.InvalidParamException;
+import com.project.shopapp.exceptions.ResourceNotFoundException;
 import com.project.shopapp.models.CategoryModel;
 import com.project.shopapp.models.ProductImageModel;
 import com.project.shopapp.models.ProductModel;
@@ -15,8 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -46,14 +50,49 @@ public class ProductService implements IProductService{
 
     @Override
     public ProductModel getProductById(long id) throws Exception {
-        return productRepository.findById(id)
-                .orElseThrow(()-> new DataNotFoundException("Cannot find product with id is :" + id));
+        return null;
+    }
+
+
+    public ProductDTO getProductDetail(Long productId) throws  Exception{
+        ProductModel product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        List<ProductImageModel> images = productImageRepository.findByProductId(productId);
+
+
+        List<ProductImageDTO> imageDTOs = images.stream()
+                .map(image -> ProductImageDTO.builder()
+                        .id(image.getId())
+                        .imageUrl(image.getImageUrl())
+                        .build())
+                .collect(Collectors.toList());
+
+        return  ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .thumbnail(product.getThumbnail())
+                .description(product.getDescription())
+                .categoryId(product.getCategory().getId())  // Assuming `getName()` exists in `CategoryModel`
+                .product_images(imageDTOs)
+                .build();
+    }
+
+
+    @Override
+    public ProductModel getProductById(Long id) throws DataNotFoundException {
+        ProductModel product = productRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find product with id: " + id));
+        return product;
     }
 
     @Override
-    public Page<ProductResponse> getAllProduct(PageRequest pageRequest) {
+    public Page getAllProduct(String keyword, Long categoryId, PageRequest pageRequest) {
         //Lấy danh sách sản phẩm theo page và limit
-        return productRepository.findAll(pageRequest).map(ProductResponse::formProduct);
+        Page<ProductModel> productPage = productRepository.searchProducts(categoryId,keyword,pageRequest);
+        // Debug thông tin về trang và tổng số phần tử
+        return productPage.map(ProductResponse::formProduct);
     }
 
     @Override
@@ -95,7 +134,7 @@ public class ProductService implements IProductService{
         ProductModel existingProduct = productRepository
                 .findById(id)
                 .orElseThrow(()->
-                        new DataNotFoundException("Can not category with id: "+productImageDTO.getProductId()));
+                        new DataNotFoundException("Can not category"));
         ProductImageModel newProductImage = ProductImageModel.builder()
 
                 .product(existingProduct)

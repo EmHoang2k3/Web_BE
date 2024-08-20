@@ -5,6 +5,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    default-locale : vi
   datasource:
     url: jdbc:mysql://localhost:3306/shop_app?useSSL=false&serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -1,6 +1,7 @@
 package com.project.shopapp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.shopapp.models.CategoryModel;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,6 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ProductDTO {
+    private Long id;
+
     @NotBlank(message = "Title is required")
     @Size(min = 3,max = 200,message = "Title must be between 3 and 200 characters")
     private String name;
@@ -29,6 +33,11 @@ public class ProductDTO {
 
     @JsonProperty("category_id")
     private Long categoryId;
+    private List<ProductImageDTO> product_images;
+
+
+    public ProductDTO(Long id, String name, Float price, String description, CategoryModel category, LocalDateTime createdAt, LocalDateTime updatedAt, String thumbnail, List<ProductImageDTO> imageDTOs) {
+    }
 
 //    private List<MultipartFile> files;
 

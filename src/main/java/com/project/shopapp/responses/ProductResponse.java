@@ -1,6 +1,8 @@
 package com.project.shopapp.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.shopapp.dtos.ProductImageDTO;
+import com.project.shopapp.models.ProductImageModel;
 import com.project.shopapp.models.ProductModel;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -8,12 +10,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductResponse extends BaseResponse{
+public class ProductResponse extends BaseResponse {
     private String name;
     private Float price;
     private String thumbnail;
@@ -22,7 +28,7 @@ public class ProductResponse extends BaseResponse{
     @JsonProperty("category_id")
     private Long categoryId;
 
-    public static ProductResponse formProduct(ProductModel product){
+    public static ProductResponse formProduct(ProductModel product) {
         ProductResponse productResponse = ProductResponse.builder()
                 .name(product.getName())
                 .price(product.getPrice())
@@ -31,11 +37,11 @@ public class ProductResponse extends BaseResponse{
                 .categoryId(product.getCategory().getId())
                 .build();
 
-        productResponse
-                .setCreatedAt(product.getCreatedAt());
-        productResponse
-                .setUpdatedAt(product.getUpdatedAt());
+        productResponse.setCreatedAt(product.getCreatedAt());
+        productResponse.setUpdatedAt(product.getUpdatedAt());
 
         return productResponse;
     }
+
 }
+
