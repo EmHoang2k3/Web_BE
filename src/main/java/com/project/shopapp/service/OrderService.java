@@ -1,11 +1,13 @@
 package com.project.shopapp.service;
 
+import com.project.shopapp.dtos.CartItemDTO;
 import com.project.shopapp.dtos.OrderDTO;
+import com.project.shopapp.dtos.OrderDetailDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
-import com.project.shopapp.models.OrderModel;
-import com.project.shopapp.models.OrderStatus;
-import com.project.shopapp.models.UserModel;
+import com.project.shopapp.models.*;
+import com.project.shopapp.repositories.OrderDetailRepository;
 import com.project.shopapp.repositories.OrderRepository;
+import com.project.shopapp.repositories.ProductRepository;
 import com.project.shopapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +25,8 @@ import java.util.List;
 public class OrderService implements IOrderService{
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
     @Override
     @Transactional
@@ -49,9 +54,26 @@ public class OrderService implements IOrderService{
         }
         order.setShippingDate(shippingDate);
         order.setActive(true);
+        order.setTotalMoney(orderDTO.getTotalMoney());
         //Lưu vào trong Database
         orderRepository.save(order);
 
+        List<OrderDetailModel> orderDetails = new ArrayList<>();
+        for(CartItemDTO cartItemDTO: orderDTO.getCartItems()){
+            OrderDetailModel orderDetail = new OrderDetailModel();
+            orderDetail.setOrder(order);
+            Long productId = cartItemDTO.getProductId();
+            int quantity = cartItemDTO.getQuantity();
+
+            ProductModel product = productRepository.findById(productId)
+                    .orElseThrow(() -> new DataNotFoundException("Product not found width id: "+productId));
+
+            orderDetail.setProduct(product);
+            orderDetail.setNumberOfProduct(quantity);
+            orderDetail.setPrice(product.getPrice());
+            orderDetails.add(orderDetail);
+        }
+        orderDetailRepository.saveAll(orderDetails);
         return order;
     }
 

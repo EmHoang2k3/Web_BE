@@ -9,6 +9,8 @@ import com.project.shopapp.responses.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 public interface IProductService {
     public ProductModel createProduct(ProductDTO productDTO) throws DataNotFoundException;
 
@@ -16,6 +18,8 @@ public interface IProductService {
 
 
     ProductModel getProductById(Long id) throws DataNotFoundException;
+
+    List<ProductModel> findProductsByIds(List<Long> productIds);
 
     Page<ProductResponse> getAllProduct(String keyword, Long categoryId, PageRequest pageRequest);
 

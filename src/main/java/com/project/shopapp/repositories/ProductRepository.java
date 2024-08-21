@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 
 public interface ProductRepository extends JpaRepository<ProductModel,Long> {
 
@@ -22,4 +24,7 @@ public interface ProductRepository extends JpaRepository<ProductModel,Long> {
     Page<ProductModel> searchProducts(@Param("categoryId") Long categoryId,
                                       @Param("keyword") String keyword, Pageable pageable);
 
+
+    @Query("SELECT p FROM ProductModel p WHERE p.id IN :productIds")
+    List<ProductModel> findProductsByIds(@Param("productIds") List<Long> productIds);
 }

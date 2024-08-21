@@ -32,10 +32,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -176,11 +174,24 @@ public class ProductController {
 //    }
 
 
-@GetMapping("/{id}")
-public ResponseEntity<ProductDTO> getProductDetail(@PathVariable Long id) throws Exception {
-    ProductDTO productDetail = productService.getProductDetail(id);
-    return ResponseEntity.ok(productDetail);
-}
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductDetail(@PathVariable Long id) throws Exception {
+        ProductDTO productDetail = productService.getProductDetail(id);
+        return ResponseEntity.ok(productDetail);
+    }
+
+    @GetMapping("/by-ids")
+    public ResponseEntity<?> getProductsByIds(@RequestParam("ids") String ids){
+        try {
+            List<Long> productIds = Arrays.stream(ids.split(","))
+                    .map(Long :: parseLong)
+                    .collect(Collectors.toList());
+            List<ProductModel> product = productService.findProductsByIds(productIds);
+            return ResponseEntity.ok(product);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable long id, @RequestBody ProductDTO productDTO) {

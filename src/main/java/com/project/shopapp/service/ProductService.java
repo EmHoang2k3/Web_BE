@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +84,11 @@ public class ProductService implements IProductService{
         ProductModel product = productRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find product with id: " + id));
         return product;
+    }
+
+    @Override
+    public List<ProductModel> findProductsByIds(List<Long> productIds){
+        return productRepository.findProductsByIds(productIds);
     }
 
     @Override
