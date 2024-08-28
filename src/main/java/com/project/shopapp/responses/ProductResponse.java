@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 public class ProductResponse extends BaseResponse {
+    private Long id;
     private String name;
     private Float price;
     private String thumbnail;
@@ -30,6 +31,7 @@ public class ProductResponse extends BaseResponse {
 
     public static ProductResponse formProduct(ProductModel product) {
         ProductResponse productResponse = ProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .price(product.getPrice())
                 .thumbnail(product.getThumbnail())

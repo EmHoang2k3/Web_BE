@@ -5,8 +5,10 @@ import com.project.shopapp.dtos.UserLoginDTO;
 import com.project.shopapp.models.UserModel;
 import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.responses.RegisterResponse;
+import com.project.shopapp.responses.UserResponse;
 import com.project.shopapp.service.IUserService;
 import com.project.shopapp.components.LocalizationUtils;
+import com.project.shopapp.service.UserService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final IUserService iUserService;
+    private final UserService iUserService;
     private final LocalizationUtils localizationUtils;
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register (
@@ -86,5 +85,22 @@ public class UserController {
                             .build());
         }
         //Tra ve token trong response
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<UserModel>> user (){
+        List<UserModel> users = iUserService.getAllUser();
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token){
+        try{
+            String extractedToken = token.substring(7);
+            UserModel user = iUserService.getUserDetailsFormToken(extractedToken);
+            return ResponseEntity.ok(UserResponse.formUser(user));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

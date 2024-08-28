@@ -39,7 +39,13 @@ public class WebSecurityConfig {
                                     String.format("%s/users/login",apiPrefix)
                             )
                             .permitAll()
-                            
+
+
+                            //User
+                            .requestMatchers(HttpMethod.GET,
+                                    String.format("%s/users**",apiPrefix)).permitAll()
+//                            .requestMatchers(HttpMethod.POST,
+//                                    String.format("%s/users/details",apiPrefix)).permitAll()
                             //Categories
                             .requestMatchers(HttpMethod.GET,
                                     String.format("%s/categories**",apiPrefix)) .permitAll()
@@ -69,7 +75,7 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.POST,
                                     String.format("%s/orders/**",apiPrefix)).hasAnyRole(RoleModel.USER)
                             .requestMatchers(HttpMethod.GET,
-                                    String.format("%s/orders/**",apiPrefix)).hasAnyRole(RoleModel.USER,RoleModel.ADMIN)
+                                    String.format("%s/orders/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT,
                                     String.format("%s/orders/**",apiPrefix)).hasRole(RoleModel.ADMIN)
                             .requestMatchers(HttpMethod.DELETE,

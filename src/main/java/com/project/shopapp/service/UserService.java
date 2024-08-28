@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -85,4 +86,26 @@ public class UserService implements IUserService{
         authentication.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
     }
+
+    @Override
+    public List<UserModel> getAllUser() {
+     return userRepository.findAll();
+    }
+
+    @Override
+    public UserModel getUserDetailsFormToken(String token) throws Exception {
+        if(jwtTokenUtil.isTokenExpired(token)){
+            throw new Exception("Token is expired");
+        }
+        String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
+        Optional<UserModel> user = userRepository.findByPhoneNumber(phoneNumber);
+
+        if(user.isPresent()){
+            return  user.get();
+        }else {
+            throw new Exception("User not found");
+        }
+    }
+
+
 }
