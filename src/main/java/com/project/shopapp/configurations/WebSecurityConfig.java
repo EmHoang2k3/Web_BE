@@ -51,23 +51,28 @@ public class WebSecurityConfig {
                                     String.format("%s/categories**",apiPrefix)) .permitAll()
                             //.hasAnyRole(RoleModel.USER,RoleModel.ADMIN)
                             .requestMatchers(HttpMethod.POST,
-                                    String.format("%s/categories/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
+                                    String.format("%s/categories/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT,
-                                    String.format("%s/categories/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
+                                    String.format("%s/categories/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.DELETE,
                                     String.format("%s/categories/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
-
+                            .requestMatchers(HttpMethod.GET,
+                                    String.format("%s/categories/images/**",apiPrefix)).permitAll()
+                            .requestMatchers(HttpMethod.POST,
+                                    String.format("%s/categories/upload/**",apiPrefix)).permitAll()
                             //Products
                             .requestMatchers(HttpMethod.GET,
                                     String.format("%s/products/**",apiPrefix)).permitAll()
+                            .requestMatchers(HttpMethod.GET,
+                                    String.format("%s/products/category/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.GET,
                                     String.format("%s/products/images/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.POST,
                                     String.format("%s/products/upload/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.POST,
-                                    String.format("%s/products/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
+                                    String.format("%s/products/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT,
-                                    String.format("%s/products/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
+                                    String.format("%s/products/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.DELETE,
                                     String.format("%s/products/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
 
@@ -76,6 +81,8 @@ public class WebSecurityConfig {
                                     String.format("%s/orders/**",apiPrefix)).hasAnyRole(RoleModel.USER)
                             .requestMatchers(HttpMethod.GET,
                                     String.format("%s/orders/**",apiPrefix)).permitAll()
+                            .requestMatchers(HttpMethod.GET,
+                                    String.format("%s/orders/user/**",apiPrefix)).hasAnyRole(RoleModel.USER,RoleModel.ADMIN)
                             .requestMatchers(HttpMethod.PUT,
                                     String.format("%s/orders/**",apiPrefix)).hasRole(RoleModel.ADMIN)
                             .requestMatchers(HttpMethod.DELETE,

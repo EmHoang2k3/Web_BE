@@ -4,12 +4,17 @@ package com.project.shopapp.controllers;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.models.OrderModel;
+import com.project.shopapp.responses.OrderHistoryResponse;
 import com.project.shopapp.responses.OrderResponse;
 import com.project.shopapp.service.IOrderService;
 import com.project.shopapp.service.OrderService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -46,13 +51,23 @@ public class OrderController {
 
     @GetMapping("/user/{user_id}")
     //Get: http://localhost:8088/api/v1/orders/user/4
-    public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId){
+    public ResponseEntity<OrderHistoryResponse> getOrders(@PathVariable("user_id") Long userId,
+                                                          @RequestParam(value = "page") int page,
+                                                          @RequestParam(value = "limit") int limit
+    ){
 
-        try{
-            List<OrderModel> orders = orderService.findByUserId(userId);
-            return ResponseEntity.ok(orders);
+        try {
+            PageRequest pageRequest = PageRequest.of( page - 1, limit, Sort.by("orderDate").ascending());
+            Page orderGetIdPage = orderService.findByUserId(userId,pageRequest);
+            int totalPage = orderGetIdPage.getTotalPages();
+            List<OrderResponse> orderResponses = orderGetIdPage.getContent();
+            return ResponseEntity.ok(OrderHistoryResponse.builder()
+                    .orders(orderResponses)
+                    .totalPages(totalPage)
+                    .build());
+
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 

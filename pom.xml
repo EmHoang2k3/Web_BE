@@ -102,6 +102,12 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3</version> <!-- Đảm bảo bạn dùng phiên bản phù hợp với Spring 3.2.8 -->
+		</dependency>
+
 
 
 	</dependencies>

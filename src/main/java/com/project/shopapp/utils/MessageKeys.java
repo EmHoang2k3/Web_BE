@@ -29,5 +29,7 @@ public class MessageKeys {
 
     public static final String UPLOAD_IMAGES_FILE_MUST_BE_IMAGE = "product.upload_image.file_must_be_image";
 
+    public static final String UPLOAD_IMAGES_MAX_1 = "product.upload_images.error_max_1_images";
+
 
 }

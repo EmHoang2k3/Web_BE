@@ -86,6 +86,8 @@ public class ProductService implements IProductService{
         return product;
     }
 
+
+
     @Override
     public List<ProductModel> findProductsByIds(List<Long> productIds){
         return productRepository.findProductsByIds(productIds);
@@ -97,6 +99,11 @@ public class ProductService implements IProductService{
         Page<ProductModel> productPage = productRepository.searchProducts(categoryId,keyword,pageRequest);
         // Debug thông tin về trang và tổng số phần tử
         return productPage.map(ProductResponse::formProduct);
+    }
+
+    @Override
+    public Page<ProductModel> getProductsByCategory(Long categoryId, PageRequest pageRequest) {
+        return productRepository.findByCategory_Id(categoryId,pageRequest);
     }
 
     @Override
@@ -137,22 +144,21 @@ public class ProductService implements IProductService{
             ProductImageDTO productImageDTO) throws Exception {
         ProductModel existingProduct = productRepository
                 .findById(id)
-                .orElseThrow(()->
-                        new DataNotFoundException("Can not category"));
-        ProductImageModel newProductImage = ProductImageModel.builder()
+                .orElseThrow(() -> new DataNotFoundException("Product not found"));
 
+        // Kiểm tra số lượng hình ảnh trước khi khởi tạo đối tượng mới
+        int size = productImageRepository.countByProductId(existingProduct.getId());
+        if(size >= ProductImageModel.MAXIMUM_IMAGES_PER_PRODUCT) {
+            throw new InvalidParamException("Number of images must be <= "
+                    + ProductImageModel.MAXIMUM_IMAGES_PER_PRODUCT);
+        }
+
+        // Tạo ProductImageModel sau khi kiểm tra
+        ProductImageModel newProductImage = ProductImageModel.builder()
                 .product(existingProduct)
                 .imageUrl(productImageDTO.getImageUrl())
                 .build();
-        //Cannot insert > 5 image into 1 product
-        int size = productImageRepository.findByProductId(existingProduct.getId()).size();
-        if(size >= ProductImageModel.MAXIMUM_IMAGES_PER_PRODUCT){
 
-            throw new InvalidParamException("" +
-                    "Number of images must be <= "
-                    +ProductImageModel.MAXIMUM_IMAGES_PER_PRODUCT);
-
-        }
         return productImageRepository.save(newProductImage);
     }
 }

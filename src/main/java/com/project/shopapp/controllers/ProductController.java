@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,9 +67,9 @@ public class ProductController {
                 .build());    }
 
 
-    @PostMapping("")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO productDTO,
-                                           //@ModelAttribute("files") List<MultipartFile> files,
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createProduct(@Valid @ModelAttribute ProductDTO productDTO,
+                                           @RequestParam("files") List<MultipartFile> files,
                                            BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -173,6 +174,20 @@ public class ProductController {
 //
 //    }
 
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ProductListResponse> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+        Page productPage = productService.getProductsByCategory(categoryId, pageRequest);
+        int totalPages = productPage.getTotalPages();
+        List<ProductResponse> products = productPage.getContent();
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .product(products)
+                .totalPages(totalPages)
+                .build());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductDetail(@PathVariable Long id) throws Exception {

@@ -16,4 +16,7 @@ public class CategoryModel {
 
     @Column(name = "name",nullable = false)
     private String name;
+
+    @Column(name = "image_thumnail")
+    private String imageThumbnail;
 }

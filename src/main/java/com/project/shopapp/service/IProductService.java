@@ -23,6 +23,8 @@ public interface IProductService {
 
     Page<ProductResponse> getAllProduct(String keyword, Long categoryId, PageRequest pageRequest);
 
+    Page<ProductModel> getProductsByCategory(Long categoryId, PageRequest pageRequest);
+
     ProductModel updateProduct(long id,ProductDTO productDTO) throws Exception;
 
     void deleteProduct (long id);

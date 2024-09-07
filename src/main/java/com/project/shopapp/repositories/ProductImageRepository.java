@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface ProductImageRepository extends JpaRepository<ProductImageModel,Long> {
     List<ProductImageModel> findByProductId(Long productId);
+
+    @Query("SELECT COUNT(pi) FROM ProductImageModel pi WHERE pi.product.id = :productId")
+    int countByProductId(@Param("productId") Long productId);
+
 //    @Query("SELECT pi FROM ProductImageModel pi WHERE pi.product.id = :productId")
 //    List<ProductImageModel> findByProductId(@Param("productId") Long productId);
 }

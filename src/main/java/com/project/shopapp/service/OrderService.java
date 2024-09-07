@@ -2,15 +2,17 @@ package com.project.shopapp.service;
 
 import com.project.shopapp.dtos.CartItemDTO;
 import com.project.shopapp.dtos.OrderDTO;
-import com.project.shopapp.dtos.OrderDetailDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.*;
 import com.project.shopapp.repositories.OrderDetailRepository;
 import com.project.shopapp.repositories.OrderRepository;
 import com.project.shopapp.repositories.ProductRepository;
 import com.project.shopapp.repositories.UserRepository;
+import com.project.shopapp.responses.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,8 +86,9 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public List<OrderModel> findByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public Page findByUserId(Long userId, PageRequest pageRequest) {
+        Page<OrderModel> orderGetIdPage = orderRepository.findByUserId(userId,pageRequest);
+        return orderGetIdPage.map(OrderResponse :: formOrder);
     }
 
     @Override
