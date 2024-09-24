@@ -2,6 +2,7 @@ package com.project.shopapp.repositories;
 
 import com.project.shopapp.models.ProductImageModel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,6 +13,11 @@ public interface ProductImageRepository extends JpaRepository<ProductImageModel,
 
     @Query("SELECT COUNT(pi) FROM ProductImageModel pi WHERE pi.product.id = :productId")
     int countByProductId(@Param("productId") Long productId);
+
+
+    @Modifying
+    @Query("DELETE FROM ProductImageModel p WHERE p.product.id = :productId")
+    void deleteByProductId(@Param("productId") Long productId);
 
 //    @Query("SELECT pi FROM ProductImageModel pi WHERE pi.product.id = :productId")
 //    List<ProductImageModel> findByProductId(@Param("productId") Long productId);

@@ -36,6 +36,8 @@ public class UserResponse {
     @JsonProperty( "google_account_id")
     private int googleAccountId;
 
+    @JsonProperty("role_id")
+    private Long role;
 
     public static UserResponse formUser(UserModel user){
         UserResponse userResponse = UserResponse.builder()
@@ -46,6 +48,7 @@ public class UserResponse {
                 .dateOfBrith(user.getDateOfBirth())
                 .facebookAccountId(user.getFacebookAccountId())
                 .googleAccountId(user.getGoogleAccountId())
+                .role(user.getRole().getId())
                 .build();
         return userResponse;
     }

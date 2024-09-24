@@ -5,12 +5,10 @@ import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
-import com.project.shopapp.exceptions.InvalidParamException;
 import com.project.shopapp.models.ProductImageModel;
 import com.project.shopapp.models.ProductModel;
 import com.project.shopapp.responses.ProductListResponse;
 import com.project.shopapp.responses.ProductResponse;
-import com.project.shopapp.service.IProductService;
 import com.project.shopapp.service.ProductService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -18,22 +16,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,11 +45,6 @@ public class ProductController {
             @RequestParam(defaultValue = "0",name = "category_id") Long categoryId,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
-        //Tạo page từ thông tin trang và giới hạn
-//        PageRequest pageRequest = PageRequest.of(page, limit,
-////                Sort.by("CreatedAt").descending()
-//                Sort.by("id").ascending()
-//        );
         PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
 
         Page productPage = productService.getAllProduct(keyword,categoryId,pageRequest);
@@ -66,17 +56,40 @@ public class ProductController {
                 .totalPages(totalPages)
                 .build());    }
 
+    @GetMapping("/soft-deleted")
+    public ResponseEntity<ProductListResponse> getSoftDeletedProducts(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        PageRequest pageRequest = PageRequest.of(page - 1, limit,Sort.by("id").ascending());
+        Page softDeletedProducts = productService.getSoftDeletedProducts(pageRequest);
+        int totalPages = softDeletedProducts.getTotalPages();
+        List<ProductResponse> products = softDeletedProducts.getContent();
+//        return ResponseEntity.ok(softDeletedProducts);
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .product(products)
+                .totalPages(totalPages)
+                .build());
+    }
+
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createProduct(@Valid @ModelAttribute ProductDTO productDTO,
-                                           @RequestParam("files") List<MultipartFile> files,
-                                           BindingResult result) {
+    public ResponseEntity<?> createProduct(
+            @Valid @ModelAttribute ProductDTO productDTO,
+            @RequestParam("files") List<MultipartFile> files,
+            BindingResult result) {
         try {
             if (result.hasErrors()) {
-                List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+                List<String> errorMessage = result.getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
                 return ResponseEntity.badRequest().body(errorMessage);
             }
+
+            // Tạo sản phẩm mới
             ProductModel newProduct = productService.createProduct(productDTO);
+
+            // Xử lý ảnh
+          productService.saveProductImage(newProduct,files);
 
             return ResponseEntity.ok(newProduct);
         } catch (Exception e) {
@@ -84,95 +97,37 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = "/upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImages(@PathVariable("id") Long productId, @ModelAttribute("files") List<MultipartFile> files) {
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable long id,
+                                           @Valid @ModelAttribute ProductDTO productDTO,
+                                           @RequestParam("files") List<MultipartFile> files,
+                                           BindingResult result) {
         try {
-            ProductModel excitingProduct = productService.getProductById(productId);
-            files = files == null ? new ArrayList<MultipartFile>() : files;
-            if (files.size() > ProductImageModel.MAXIMUM_IMAGES_PER_PRODUCT) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
+            if(result.hasErrors()){
+                List<String> errorMessage = result.getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errorMessage);
             }
-            List<ProductImageModel> productImages = new ArrayList<>();
-            for (MultipartFile file : files) {
-                if (file.getSize() == 0) {
-                    continue;
-                }
-                //Kiểm tra kích thước file và thuộc tính định dạng
-                if (file.getSize() > 10 * 1024 * 1024) { //Kich thuoc > 10MB
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGE_FILE_LARGE));
-                }
-                String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
-                }
-                //Lưu file và cập nhật trong DTO
-                String filename = storeFile(file);
-                //Lưu đối tượng vào trong database
-                ProductImageModel productImage = productService.createProductImage(excitingProduct.getId(), ProductImageDTO.builder().imageUrl(filename).build());
-                productImages.add(productImage);
-            }
-            return ResponseEntity.ok().body(productImages);
+            ProductModel productUpdate = productService.updateProducts(id, productDTO);
+            productService.saveProductImagesForUpdate(productUpdate,files);
+            return ResponseEntity.ok(ProductResponse.formProduct(productUpdate));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok(String.format("Product width delete successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-
-    @GetMapping("/images/{imageName}")
-    public ResponseEntity<?> viewImage(@PathVariable String imageName) throws Exception {
-        try {
-                java.nio.file.Path imagePath = Paths.get("uploads/" + imageName);
-            UrlResource resource = new UrlResource(imagePath.toUri());
-            if (resource.exists()) {
-                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
-            }else{
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(new UrlResource(Paths.get("uploads/notfound.png").toUri()));
-            }
-        } catch (Exception e) {
-//            throw new InvalidParamException("Errors "+ e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-
-    private String storeFile(MultipartFile file) throws IOException {
-
-        if (!isImageFile(file) || file.getOriginalFilename() == null) {
-            throw new IOException("Invalid image format");
-        }
-        String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        //Thêm UUID vào trước tên file để đảm bảo tên file là duy nhất
-        String uniqueFilename = UUID.randomUUID().toString() + "_" + filename;
-        //Đường dẫn đến thư mục bạn muốn lưu file
-        java.nio.file.Path uploadDir = Paths.get("uploads");
-        //Kiểm tra và tạo thư mục nếu nó không tồn tại
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
-        }
-        //Đường dẫn đầy đủ đến file
-        java.nio.file.Path destination = Paths.get(uploadDir.toString(), uniqueFilename);
-        //Sao chép file vào thư mục đích
-        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return uniqueFilename;
-    }
-
-    private boolean isImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && contentType.startsWith("image/");
-    }
-
-//    @GetMapping("/{id}")
-//    public ResponseEntity<?> getProductById(@PathVariable("id") Long productId) {
-//        try {
-//            ProductModel existingProduct = productService.getProductById(productId);
-//            return ResponseEntity.ok(ProductResponse.formProduct(existingProduct));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//
-//    }
 
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<ProductListResponse> getProductsByCategory(
@@ -187,6 +142,25 @@ public class ProductController {
                 .product(products)
                 .totalPages(totalPages)
                 .build());
+    }
+
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) throws Exception {
+        try {
+            java.nio.file.Path imagePath = Paths.get("uploads/" + imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+            if (resource.exists()) {
+                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
+            }else{
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(new UrlResource(Paths.get("uploads/notfound.png").toUri()));
+            }
+        } catch (Exception e) {
+//            throw new InvalidParamException("Errors "+ e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -208,26 +182,26 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable long id, @RequestBody ProductDTO productDTO) {
-        try {
-            ProductModel productUpdate = productService.updateProduct(id, productDTO);
-            return ResponseEntity.ok(ProductResponse.formProduct(productUpdate));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
 
-    @DeleteMapping("/{id}")
 
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteProduct(id);
-            return ResponseEntity.ok(String.format("Product width delete successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @DeleteMapping("/soft-delete/{id}")
+    public ResponseEntity<String> softDeleteProduct(@PathVariable("id") Long productId) {
+        productService.softDeleteProduct(productId);
+        return ResponseEntity.ok("Product soft deleted successfully");
     }
+
+    @PutMapping("/restore/{id}")
+    public ResponseEntity<String> restoreProduct(@PathVariable("id") Long productId) {
+        productService.restoreProduct(productId);
+        return ResponseEntity.ok("Product restored successfully");
+    }
+
+
 
     //@PostMapping("/generateFakeProducts")
     private ResponseEntity<String> generateFakeProducts() {
@@ -246,6 +220,4 @@ public class ProductController {
         }
         return ResponseEntity.ok("Fake products create successfully");
     }
-
-
 }

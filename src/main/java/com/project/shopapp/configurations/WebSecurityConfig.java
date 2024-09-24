@@ -73,8 +73,12 @@ public class WebSecurityConfig {
                                     String.format("%s/products/**",apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT,
                                     String.format("%s/products/**",apiPrefix)).permitAll()
+//                            .requestMatchers(HttpMethod.DELETE,
+//                                    String.format("%s/products/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
                             .requestMatchers(HttpMethod.DELETE,
-                                    String.format("%s/products/**",apiPrefix)).hasAnyRole(RoleModel.ADMIN)
+                                    String.format("%s/products/soft-delete/**",apiPrefix)).permitAll()
+                            .requestMatchers(HttpMethod.PUT,
+                                    String.format("%s/products/restore/**",apiPrefix)).permitAll()
 
                             //Order
                             .requestMatchers(HttpMethod.POST,

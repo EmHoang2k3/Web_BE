@@ -8,13 +8,13 @@ import com.project.shopapp.models.ProductModel;
 import com.project.shopapp.responses.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface IProductService {
     public ProductModel createProduct(ProductDTO productDTO) throws DataNotFoundException;
 
-    ProductModel getProductById(long id) throws Exception;
 
 
     ProductModel getProductById(Long id) throws DataNotFoundException;
@@ -25,7 +25,7 @@ public interface IProductService {
 
     Page<ProductModel> getProductsByCategory(Long categoryId, PageRequest pageRequest);
 
-    ProductModel updateProduct(long id,ProductDTO productDTO) throws Exception;
+    ProductModel updateProducts(long id,ProductDTO productDTO) throws Exception;
 
     void deleteProduct (long id);
 
@@ -34,4 +34,10 @@ public interface IProductService {
     public ProductImageModel createProductImage(
             Long id,
             ProductImageDTO productImageDTO) throws Exception;
+
+    List<ProductImageModel> saveProductImage(ProductModel product, List<MultipartFile> files) throws Exception;
+    List<ProductImageModel> saveProductImagesForUpdate(ProductModel product, List<MultipartFile> files) throws Exception;
+
+
+    void softDeleteProduct(long productId);
 }

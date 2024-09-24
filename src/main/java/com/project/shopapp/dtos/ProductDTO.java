@@ -35,10 +35,6 @@ public class ProductDTO {
     private Long categoryId;
     private List<ProductImageDTO> product_images;
 
-
-    public ProductDTO(Long id, String name, Float price, String description, CategoryModel category, LocalDateTime createdAt, LocalDateTime updatedAt, String thumbnail, List<ProductImageDTO> imageDTOs) {
-    }
-
 //    private List<MultipartFile> files;
 
 }

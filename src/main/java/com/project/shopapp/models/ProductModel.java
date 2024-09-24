@@ -32,4 +32,7 @@ public class ProductModel extends BaseModel{
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryModel category;
+
+    @Column(name = "active" , nullable = false)
+    private Boolean active = true ;
 }
