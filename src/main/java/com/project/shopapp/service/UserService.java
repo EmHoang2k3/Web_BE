@@ -8,8 +8,11 @@ import com.project.shopapp.models.RoleModel;
 import com.project.shopapp.models.UserModel;
 import com.project.shopapp.repositories.RoleRepository;
 import com.project.shopapp.repositories.UserRepository;
+import com.project.shopapp.responses.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +45,7 @@ public class UserService implements IUserService{
         if(role.getName().equals(RoleModel.ADMIN)){
             throw new PermissionDenyException("You cannot register an admin account");
         }
-        //convert từ userDto -> userModel
+        //convert từ uqserDto -> userModel
         UserModel newUser = UserModel.builder()
                 .fullName(userDTO.getFullName())
                 .password(userDTO.getPassword())
@@ -88,8 +91,9 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<UserModel> getAllUser() {
-     return userRepository.findAll();
+    public Page getAllUser(PageRequest pageRequest) {
+        Page<UserModel> userPage = userRepository.findAll(pageRequest);
+        return userPage.map(UserResponse :: formUser);
     }
 
     @Override

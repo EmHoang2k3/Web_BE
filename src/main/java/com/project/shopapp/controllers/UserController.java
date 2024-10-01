@@ -5,6 +5,7 @@ import com.project.shopapp.dtos.UserLoginDTO;
 import com.project.shopapp.models.UserModel;
 import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.responses.RegisterResponse;
+import com.project.shopapp.responses.UserListResponse;
 import com.project.shopapp.responses.UserResponse;
 import com.project.shopapp.service.IUserService;
 import com.project.shopapp.components.LocalizationUtils;
@@ -12,6 +13,9 @@ import com.project.shopapp.service.UserService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -88,9 +92,18 @@ public class UserController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<UserModel>> user (){
-        List<UserModel> users = iUserService.getAllUser();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<UserListResponse> getAllUser (
+            @RequestParam("page")    int page,
+            @RequestParam("limit")   int limit
+    ){
+        PageRequest pageRequest = PageRequest.of(page -1,limit, Sort.by("id").ascending());
+        Page userPage = iUserService.getAllUser(pageRequest);
+        int totalPage = userPage.getTotalPages();
+        List<UserResponse> users = userPage.getContent();
+        return ResponseEntity.ok(UserListResponse.builder()
+                        .user(users)
+                        .totalPage(totalPage)
+                        .build());
     }
 
     @PostMapping("/details")

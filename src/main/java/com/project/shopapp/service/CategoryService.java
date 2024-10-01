@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.DateTimeException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +28,9 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public CategoryModel getCategoryById(long id) {
+    public CategoryModel getCategoryById(long id) throws DataNotFoundException {
         return categoryRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Category not found"));
+                .orElseThrow(()-> new DataNotFoundException("Cannot find category with id: " + id));
     }
 
 
@@ -41,7 +41,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public CategoryModel updateCategory(long id, CategoryDTO categoryDTO) {
+    public CategoryModel updateCategory(long id, CategoryDTO categoryDTO) throws DataNotFoundException {
         // Lấy category hiện có từ database
         CategoryModel existingCategory = getCategoryById(id);
 

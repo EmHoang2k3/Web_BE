@@ -34,7 +34,7 @@ public class ProductDTO {
     @JsonProperty("category_id")
     private Long categoryId;
     private List<ProductImageDTO> product_images;
-
+    private boolean active;
 //    private List<MultipartFile> files;
 
 }

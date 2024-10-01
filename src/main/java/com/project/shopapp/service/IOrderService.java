@@ -22,5 +22,9 @@ public interface IOrderService {
 
     OrderModel updateOrder(long id, OrderDTO orderDTO) throws DataNotFoundException;
 
+    OrderModel updateOrderStatus(long orderId, String newStatus) throws Exception;
+
+    Page<OrderModel> getAllOrder(PageRequest pageRequest);
+
     void remoteOrder(long id);
 }

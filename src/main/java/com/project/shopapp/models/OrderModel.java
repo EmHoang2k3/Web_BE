@@ -71,4 +71,5 @@ public class OrderModel {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<OrderDetailModel> orderDetail;
+
 }

@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.shopapp.models.OrderDetailModel;
 import com.project.shopapp.models.OrderModel;
 
+import com.project.shopapp.models.UserModel;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Setter
@@ -19,7 +22,7 @@ public class OrderResponse {
     private Long id;
 
     @JsonProperty("user_id")
-    private Long userId;
+    private UserModel user;
 
     @JsonProperty("fullname")
     private String fullName;
@@ -67,12 +70,15 @@ public class OrderResponse {
    public static OrderResponse formOrder(OrderModel order){
        OrderResponse orderResponse = OrderResponse.builder()
                .id(order.getId())
-               .userId(order.getUser().getId())
+               .user(order.getUser())
                .fullName(order.getFullName())
                .phoneNumber(order.getPhoneNumber())
                .email(order.getEmail())
                .address(order.getAddress())
                .note(order.getNote())
+               .orderDate(order.getOrderDate().toInstant()
+                       .atZone(ZoneId.systemDefault())
+                       .toLocalDate())
                .status(order.getStatus())
                .totalMoney(order.getTotalMoney())
                .paymentMethod(order.getPaymentMethod())

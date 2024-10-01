@@ -106,6 +106,60 @@ public class OrderService implements IOrderService{
         return orderRepository.save(order);
 
     }
+//Cập nhật status cho order
+    @Override
+    public OrderModel updateOrderStatus(long orderId, String newStatus) throws Exception {
+        OrderModel order = orderRepository.findById(orderId).orElseThrow(()-> new DataNotFoundException("Order not found with id "+ orderId));
+
+        String currentStatus = order.getStatus();
+
+        if(!isValidStatus(newStatus)){
+            throw new IllegalArgumentException("Invalid status: " + newStatus);
+        }
+
+        if(!isValidStatusTransition(currentStatus,newStatus)){
+            throw new IllegalStateException("Cannot change status from " + currentStatus + " to " + newStatus);
+        }
+
+        order.setStatus(newStatus);
+
+
+        if(OrderStatus.SHIPPED.equals(newStatus)){
+           order.setShippingDate(LocalDate.now());
+        }
+
+        orderRepository.save(order);
+        return order;
+    }
+
+    @Override
+    public Page getAllOrder(PageRequest pageRequest) {
+        Page<OrderModel> orderPage = orderRepository.findAll(pageRequest);
+        return orderPage.map(OrderResponse :: formOrder);
+    }
+
+    // Phương thức kiểm tra trạng thái hợp lệ
+    private boolean isValidStatus(String status){
+        return status.equals(OrderStatus.PENDING)||
+                status.equals(OrderStatus.PROCESSING) ||
+                status.equals(OrderStatus.SHIPPED) ||
+                status.equals(OrderStatus.DELIVERED) ||
+                status.equals(OrderStatus.CANCELLED);
+    }
+
+    private boolean isValidStatusTransition (String currentStatus , String newStatus){
+        switch (currentStatus){
+            case OrderStatus.PENDING :
+                return newStatus.equals(OrderStatus.PROCESSING ) || newStatus.equals(OrderStatus.CANCELLED);
+            case OrderStatus.PROCESSING:
+                return newStatus.equals(OrderStatus.SHIPPED) || newStatus.equals(OrderStatus.CANCELLED);
+            case OrderStatus.SHIPPED:
+                return newStatus.equals(OrderStatus.DELIVERED);
+
+            default:
+                return false;
+        }
+    }
 
     @Override
     public void remoteOrder(long id) {
@@ -116,4 +170,6 @@ public class OrderService implements IOrderService{
             orderRepository.save(order);
         }
     }
+
+
 }

@@ -77,10 +77,8 @@ public class CategoryController {
                 String filename = storeFile(file); // Hàm lưu file
                 categoryDTO.setImageThumbnail(filename);
             }
-            categoryService.updateCategory(id, categoryDTO);
-            return ResponseEntity.ok(CategoryResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY))
-                    .build());
+            CategoryModel categoryUpdate = categoryService.updateCategory(id, categoryDTO);
+            return ResponseEntity.ok(CategoryResponse.formCategory(categoryUpdate));
         } catch (Exception e) {
             e.printStackTrace(); // In ra log lỗi chi tiết
             return ResponseEntity.badRequest().body(CategoryResponse.builder()
@@ -132,6 +130,11 @@ public class CategoryController {
     }
 
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryModel> getCategoryDetail(@PathVariable Long id) throws Exception{
+        CategoryModel categoryDetail = categoryService.getCategoryById(id);
+        return ResponseEntity.ok(categoryDetail);
+    }
 
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewImage(@PathVariable String imageName) throws Exception {

@@ -8,18 +8,19 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
+public class CategoryResponse{
     private String message;
     private Long id;
     private String name;
     private String thumnail;
 
     public static CategoryResponse formCategory(CategoryModel category){
-        CategoryResponse categoryResponse = CategoryResponse.builder()
+        return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .thumnail(category.getImageThumbnail())
                 .build();
-        return categoryResponse;
+
+
     }
 }
