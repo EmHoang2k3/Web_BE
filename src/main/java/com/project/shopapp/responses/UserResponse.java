@@ -1,11 +1,6 @@
 package com.project.shopapp.responses;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.shopapp.models.RoleModel;
 import com.project.shopapp.models.UserModel;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 import java.util.Date;

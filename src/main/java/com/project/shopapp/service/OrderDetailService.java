@@ -1,6 +1,5 @@
 package com.project.shopapp.service;
 
-import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.dtos.OrderDetailDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.OrderDetailModel;

@@ -7,7 +7,6 @@ import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.responses.RegisterResponse;
 import com.project.shopapp.responses.UserListResponse;
 import com.project.shopapp.responses.UserResponse;
-import com.project.shopapp.service.IUserService;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.service.UserService;
 import com.project.shopapp.utils.MessageKeys;

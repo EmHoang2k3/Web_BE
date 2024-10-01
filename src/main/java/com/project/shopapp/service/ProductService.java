@@ -7,7 +7,6 @@ import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.InvalidParamException;
 import com.project.shopapp.exceptions.ResourceNotFoundException;
 import com.project.shopapp.models.CategoryModel;
-import com.project.shopapp.models.OrderModel;
 import com.project.shopapp.models.ProductImageModel;
 import com.project.shopapp.models.ProductModel;
 import com.project.shopapp.repositories.CategoryRepository;

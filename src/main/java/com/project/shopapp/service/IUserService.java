@@ -6,8 +6,6 @@ import com.project.shopapp.responses.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-
 
 public interface IUserService {
     UserModel createUser(UserDTO userDTO) throws Exception;

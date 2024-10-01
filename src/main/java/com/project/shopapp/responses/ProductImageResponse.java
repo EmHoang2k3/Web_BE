@@ -1,7 +1,6 @@
 package com.project.shopapp.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.shopapp.models.ProductModel;
 import lombok.*;
 
 import java.util.List;

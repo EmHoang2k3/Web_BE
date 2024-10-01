@@ -8,7 +8,6 @@ import com.project.shopapp.models.OrderModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 
 public interface IOrderService {
     OrderModel createOrder (OrderDTO orderDTO) throws Exception;

@@ -7,7 +7,6 @@ import com.project.shopapp.models.OrderModel;
 import com.project.shopapp.responses.OrderHistoryResponse;
 import com.project.shopapp.responses.OrderListResponse;
 import com.project.shopapp.responses.OrderResponse;
-import com.project.shopapp.service.IOrderService;
 import com.project.shopapp.service.OrderService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
